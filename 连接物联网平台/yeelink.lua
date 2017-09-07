@@ -4,16 +4,16 @@ gpio.mode(sg, gpio.OUTPUT) gpio.mode(LED, gpio.OUTPUT) gpio.mode(jxkg, gpio.INT)
 cu = net.createConnection(net.TCP, 0)
 cu:connect(80, "42.96.164.52")
 cu:on("connection", function(sck, res) 
-    cu:send("GET /v1.0/device/352321/sensor/396595/datapoints HTTP/1.1\r\n"
+    cu:send("GET /v1.0/device/000000/sensor/000000/datapoints HTTP/1.1\r\n"
     .."Host:api.yeelink.net\r\n"
     .."Accept:*/*\r\n"
-    .."U-ApiKey:d04763cc04a9065298cbb6f26ccf410f\r\n"
+    .."U-ApiKey:00000000000000000000000000000000\r\n"
     .."\r\n") 
     end )
 cu:on("receive", function(sck, res) i, j=string.find(res, "value") fhkg=string.sub(res,j+3,j+3)
     if kgbj==0 and fhkg=="1" then print("1") kgbj=1 qd()
     elseif kgbj==1 and fhkg=="0" then print("0") kgbj=0 gb()
-    else end
+    end
     tmr.delay(10000000) end )
 cu:on("disconnection", function() dofile("kg.lua") end )
 --[[

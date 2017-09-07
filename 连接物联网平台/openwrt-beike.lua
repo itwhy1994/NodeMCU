@@ -1,9 +1,9 @@
 local socket = require("socket")--引入Luasocket
 local json = require("json")--引入Json4lua
 local util = require "luci.util"--引入luci,调用cup负载
-DEVICEID = "1081" --设备ID
-APIKEY = "de39f7177" --设备APIKEY
-INPUTID = "894" --数据接口ID
+DEVICEID = "0000" --设备ID
+APIKEY = "00000000" --设备APIKEY
+INPUTID = "000" --数据接口ID
 host = host or "121.42.180.30"
 port = port or 8181
 lastTime = 0
