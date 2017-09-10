@@ -1,12 +1,15 @@
 --[[
-
+--“音信霾明”环境监测装置
+--检测周围温湿度、PM2.5，并用灯光颜色和背景音乐来呈现不同环境状态
+--并可通过手机查看相关参数和按钮启动语音播报
+--原创作品    By：CUIT-Gdjsxy（张金花、曹利芳、杨玲、王和远、姚堃）
 --]]
-uart.setup(0,9600,8,0,1,0)
+uart.setup(0,9600,8,0,1,0)--设置串口通信参数
 tmr.delay(5000000)
---Voice
+--播放启动语音和背景音乐
 uart.write(0,0xFD,0x00,0x18,0x01,0x01,0x72,0x69,0x6E,0x67,0x6B,0xBB,0xB6,0xD3,0xAD,0xCA,0xB9,0xD3,0xC3,0xD2,0xF4,0xD0,0xC5,0xF6,0xB2,0xC3,0xF7,0xCF)
---Ws2812
-ws=0
+--灯光效果设置
+ws=0--灯光展示状态值
 ws2812.init()
 i,buffer=0,ws2812.newBuffer(30,3);
 buffer:fill(0,0,0);
@@ -37,7 +40,7 @@ tmr.alarm(0,50,1,function()
 	ws2812.write(buffer)
 end)
 tmr.delay(10000000)
--- Pm2.5
+--Pm2.5检测
 pm25=100
 pu=0
 du=0
@@ -68,12 +71,12 @@ tmr.alarm(1,30000,1,function()
 		ws=6
 	end
 end)
--- DHT
+--DHT检测温湿度
 dhtzt,wd,sd,wddec,sddec=dht.read11(1)
 tmr.alarm(2,10000,1,function()
 	dhtzt,wd,sd,wddec,sddec=dht.read11(1)
 end)
--- Wifi
+--Wifi
 wifi.setmode(wifi.STATIONAP)
 apcfg={}
 apcfg.ssid='nodemcu'
@@ -81,8 +84,8 @@ apcfg.pwd='cuitcdio'
 wifi.ap.config(apcfg)
 wifi.sta.config("king1","cuitcdio")
 wifi.sta.connect()
--- Button
-gpio.mode(2,gpio.INT)
+--Button按钮功能设置
+gpio.mode(2,gpio.INT)--语音播报PM2.5和温湿度
 gpio.trig(2,"up",function(level)
 	if level == gpio.HIGH then
 		uart.write(0,0xfd,0x00,0x23,0x01)
@@ -119,7 +122,7 @@ gpio.trig(2,"up",function(level)
 		end
 	end
 end)
-gpio.mode(3,gpio.INT)
+gpio.mode(3,gpio.INT)--改变灯光效果
 gpio.trig(3,"up",function(level)
 	if level == gpio.HIGH then
 		ws=ws+1
@@ -127,7 +130,7 @@ gpio.trig(3,"up",function(level)
 	end
 end)
 mu=0
-gpio.mode(7,gpio.INT)
+gpio.mode(7,gpio.INT)--切换音乐
 gpio.trig(7,"up",function(level)
 	if level == gpio.HIGH then
 		if (mu==0) then
@@ -165,7 +168,7 @@ gpio.trig(7,"up",function(level)
 	mu=mu+1
 	mu=mu%15
 end)
--- Web
+--Web浏览器查看信息
 srv=net.createServer(net.TCP)
 srv:listen(80,function(conn)
 	conn:on("receive",function(conn,payload)
