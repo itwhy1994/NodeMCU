@@ -1,3 +1,8 @@
+--[[
+--OpenWRT与贝壳物联通信程序（Lua）
+--Data:2017.09.10
+--By:CUITWhy
+--]]
 local socket = require("socket")--引入Luasocket
 local json = require("json")--引入Json4lua
 local util = require "luci.util"--引入luci,调用cup负载
@@ -29,9 +34,11 @@ while true do
             print(response)
             r = json.decode(response)
             if r.C=="warning" then
-                os.execute("wget ".."http://localhost:8080/?action=snapshot".." -O /www/test.jpg")
-                os.execute("curl --request POST -F ".."data=@/www/test.jpg".." --header ".."API-KEY:de39f7177".." http://www.bigiot.net/pubapi/uploadImg/did/1081/inputid/894")
-            end
+				os.execute ("wget " .. "http://localhost:8080/?action=snapshot" .. " -O /www/test.jpg")--使用wget命令获取本地挂载摄像头当前图像并保存到/www/test.jpg
+				--使用curl上传到贝壳物联，注意修改相关参数
+				os.execute ("curl --request POST -F " .. "data=@/www/test.jpg" .. " --header " ..
+				"API-KEY:000000000" .. " http://www.bigiot.net/pubapi/uploadImg/did/0000/inputid/000")
+			end
         end
     end
 end
