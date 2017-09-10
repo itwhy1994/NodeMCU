@@ -1,6 +1,18 @@
-sg=0 jxkg = 1 hw = 2 LED = 4 kgbj=0
-gpio.write(sg, gpio.HIGH) gpio.write(jxkg, gpio.LOW) gpio.write(hw, gpio.LOW) 
-gpio.mode(sg, gpio.OUTPUT) gpio.mode(LED, gpio.OUTPUT) gpio.mode(jxkg, gpio.INT)
+--[[
+--NodeMCU与yeelink物联网平台通信的代码
+--作品说明：NodeMCU连接到yeelink，并可以接受其控制（主要是开关预警功能）。
+--打开预警功能后，如果有人体进入热释电红外传感器的探测范围会自动向平台发送预警信息。
+--关闭预警后则不会触发。
+--为了方便解释和查看，整理时添加了很多注释和空行等，使用时建议删除
+--]]
+
+Alert = 0
+Pir = 2
+LED = 4
+gpio.write(Alert, gpio.HIGH)
+gpio.write(Pir, gpio.LOW) 
+gpio.mode(Alert, gpio.OUTPUT)
+gpio.mode(LED, gpio.OUTPUT)
 cu = net.createConnection(net.TCP, 0)
 cu:connect(80, "42.96.164.52")
 cu:on("connection", function(sck, res) 
@@ -10,29 +22,32 @@ cu:on("connection", function(sck, res)
     .."U-ApiKey:00000000000000000000000000000000\r\n"
     .."\r\n") 
     end )
-cu:on("receive", function(sck, res) i, j=string.find(res, "value") fhkg=string.sub(res,j+3,j+3)
-    if kgbj==0 and fhkg=="1" then print("1") kgbj=1 qd()
-    elseif kgbj==1 and fhkg=="0" then print("0") kgbj=0 gb()
+cu:on("receive", function(sck, res) 
+	i, j=string.find(res, "value") 
+	fhkg=string.sub(res,j+3,j+3)
+	if kgbj==0 and fhkg=="1" then 
+		print("1") 
+		Start()
+	elseif kgbj==1 and fhkg=="0" then 
+		print("0")
+		Stop()
     end
     tmr.delay(10000000) end )
-cu:on("disconnection", function() dofile("kg.lua") end )
---[[
-gpio.trig(jxkg, "both", function(level)
-    if level == gpio.HIGH then qd()
-    elseif level == gpio.LOW then gb()
-    else end
-end)
---]]
-function qd()
-    gpio.write(LED, gpio.LOW) gpio.mode(hw,gpio.INT)
-    gpio.trig(hw, "both", function(level)
+cu:on("disconnection", function()
+
+end )
+function Start()
+	gpio.write(LED, gpio.LOW)
+	gpio.mode(Pir,gpio.INT)
+    gpio.trig(Pir, "both", function(level)
         if level == gpio.HIGH then
-            gpio.write(sg, gpio.LOW)
-            
-        elseif level == gpio.LOW then gpio.write(sg, gpio.HIGH)
-        else end
+            gpio.write(Alert, gpio.LOW)
+		elseif level == gpio.LOW then 
+			gpio.write(Alert, gpio.HIGH)
+        end
     end)
 end
-function gb()
-    gpio.write(LED, gpio.HIGH) gpio.mode(hw, gpio.OUTPUT)
+function Stop()
+	gpio.write (LED, gpio.HIGH)
+	gpio.mode(Pir, gpio.OUTPUT)
 end
